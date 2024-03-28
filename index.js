@@ -57,14 +57,29 @@ function sortTours(tours, sortBy) {
   });
 }
 
-// GET request handler for all tours (with optional filtering and sorting)
+// Function to paginate tours
+function paginateTours(tours, page = 1, pageSize = 6) {
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  return tours.slice(startIndex, endIndex);
+}
+
+// GET request handler for all tours (with optional filtering, sorting, and pagination)
 app.get('/tours', (req, res) => {
   const query = req.query; // Access query parameters
+  const page = parseInt(query.page) || 1; // Default page to 1
+  const pageSize = parseInt(query.pageSize) || 6; // Default page size to 10
 
   let filteredData = filterTours(app.locals.data, query);
-  filteredData = sortTours(filteredData, query.sortBy); 
+  filteredData = sortTours(filteredData, query.sortBy);
 
-  res.json(filteredData);
+  const paginatedData = paginateTours(filteredData, page, pageSize);
+  const totalPages = Math.ceil(filteredData.length / pageSize);
+
+  res.json({
+    tours: paginatedData,
+    totalPages,
+  });
 });
 
 // GET request handler for a single tour by ID
@@ -83,4 +98,5 @@ app.get('/tours/:id', (req, res) => {
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+
 
