@@ -65,7 +65,7 @@ function paginateTours(tours, page = 1, pageSize = 6) {
 }
 
 // GET request handler for all tours (with optional filtering, sorting, and pagination)
-app.get('/tours', (req, res) => {
+app.get('/pagenatedTours', (req, res) => {
   const query = req.query; // Access query parameters
   const page = parseInt(query.page) || 1; // Default page to 1
   const pageSize = parseInt(query.pageSize) || 6; // Default page size to 10
@@ -80,6 +80,16 @@ app.get('/tours', (req, res) => {
     tours: paginatedData,
     totalPages,
   });
+});
+
+// GET request handler for all tours (with optional filtering and sorting)
+app.get('/tours', (req, res) => {
+  const query = req.query; // Access query parameters
+
+  let filteredData = filterTours(app.locals.data, query);
+  filteredData = sortTours(filteredData, query.sortBy); 
+
+  res.json(filteredData);
 });
 
 // GET request handler for a single tour by ID
